@@ -1,92 +1,56 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Beranda</title>
+    <title>Home</title>
 
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: #f8fafc;
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background-color: #f8fafc;
         }
-
-        .card-box {
-            background: #ffffff;
-            padding: 50px 40px;
-            border-radius: 12px;
-            box-shadow: 0px 4px 14px rgba(0,0,0,0.08);
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
+        .home-card {
+            max-width: 620px;
+            border-radius: 14px;
         }
-
         .logo {
-            width: 80px;
-            height: auto;
-            margin-bottom: 20px;
-            opacity: 0.95;
-        }
-
-        .links a {
-            margin: 0 12px;
-            font-weight: 600;
-            color: #0d6efd;
-            text-decoration: none;
-        }
-
-        .links a:hover {
-            text-decoration: underline;
-        }
-
-        h1 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .subtext {
-            font-size: 15px;
-            color: #6c757d;
-            margin-bottom: 25px;
+            width: 90px;
         }
     </style>
 </head>
 
-<body>
+<body class="d-flex justify-content-center align-items-center min-vh-100">
 
-    <div class="card-box">
+    <div class="card shadow home-card p-5 text-center">
 
-        <!-- LOGO LARAVEL -->
-        <img
-            src="https://laravel.com/img/logomark.min.svg"
-            alt="Laravel Logo"
-            class="logo"
-        >
+        <!-- LOGO DI TENGAH -->
+        <div class="d-flex justify-content-center mb-3">
+            <img src="https://laravel.com/img/logomark.min.svg" 
+                 alt="Laravel Logo" 
+                 class="logo">
+        </div>
 
-        <h1>Selamat Datang</h1>
-        <p class="subtext">Aplikasi sederhana untuk latihan autentikasi, profil, dan dashboard.</p>
+        <h1 class="fw-bold mb-2">Welcome</h1>
 
-        <div class="links">
+        <p class="text-muted mb-4">
+            A simple application for practicing authentication, profile management, and dashboard usage.
+        </p>
 
+        <div class="d-flex justify-content-center gap-3">
             @guest
-                <a href="{{ route('login') }}">Login</a>
-                <a href="{{ route('register') }}">Register</a>
+                <a href="{{ route('login') }}" class="btn btn-primary px-4">Login</a>
+                <a href="{{ route('register') }}" class="btn btn-outline-primary px-4">Register</a>
             @endguest
 
             @auth
-                <a href="{{ route('dashboard') }}">Dashboard</a>
+                <a href="{{ route('dashboard') }}" class="btn btn-success px-4">Go to Dashboard</a>
             @endauth
-
         </div>
+
     </div>
 
 </body>

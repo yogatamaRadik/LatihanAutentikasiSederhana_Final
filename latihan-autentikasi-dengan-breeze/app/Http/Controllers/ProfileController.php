@@ -12,7 +12,7 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Show profile page.
      */
     public function edit(Request $request): View
     {
@@ -22,23 +22,69 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Update profile information (name, email, etc).
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $user->fill($request->validated());
+
+        // If email changed → force re-verification
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**
-     * Delete the user's account.
+     * Update only the profile photo.
+     */
+    public function updatePhoto(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'foto' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+        ]);
+
+        $user = $request->user();
+
+        // Delete old photo if exists
+        if ($user->foto && file_exists(public_path('uploads/' . $user->foto))) {
+            unlink(public_path('uploads/' . $user->foto));
+        }
+
+        // Upload new photo
+        $fileName = time() . '.' . $request->foto->extension();
+        $request->foto->move(public_path('uploads'), $fileName);
+
+        $user->foto = $fileName;
+        $user->save();
+
+        return Redirect::back()->with('status', 'photo-updated');
+    }
+
+    /**
+     * Delete profile photo.
+     */
+    public function deletePhoto(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        if ($user->foto && file_exists(public_path('uploads/' . $user->foto))) {
+            unlink(public_path('uploads/' . $user->foto));
+        }
+
+        $user->foto = null;
+        $user->save();
+
+        return Redirect::back()->with('status', 'photo-deleted');
+    }
+
+    /**
+     * Delete account permanently.
      */
     public function destroy(Request $request): RedirectResponse
     {
@@ -48,8 +94,12 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        Auth::logout();
+        // Delete user photo before deleting account
+        if ($user->foto && file_exists(public_path('uploads/' . $user->foto))) {
+            unlink(public_path('uploads/' . $user->foto));
+        }
 
+        Auth::logout();
         $user->delete();
 
         $request->session()->invalidate();
