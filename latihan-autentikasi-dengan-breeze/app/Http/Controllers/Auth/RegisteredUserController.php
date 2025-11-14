@@ -28,24 +28,37 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'nim' => ['required', 'unique:users'],
+            'nama_lengkap' => ['required'],
+            'tempat_lahir' => ['required'],
+            'tanggal_lahir' => ['required', 'date'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:2048'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'confirmed'],
         ]);
 
+        // Upload foto
+        $fotoName = null;
+        if ($request->hasFile('foto')) {
+            $fotoName = time() . '.' . $request->foto->extension();
+            $request->foto->move(public_path('uploads'), $fotoName);
+        }
+
         $user = User::create([
-            'name' => $request->name,
+            'nim' => $request->nim,
+            'nama_lengkap' => $request->nama_lengkap,
+            'tempat_lahir' => $request->tempat_lahir,
+            'tanggal_lahir' => $request->tanggal_lahir,
+            'foto' => $fotoName,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
-        event(new Registered($user));
-
         Auth::login($user);
 
-        return redirect(RouteServiceProvider::HOME);
+        return redirect()->route('dashboard');
     }
 }
